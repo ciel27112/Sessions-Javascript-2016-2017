@@ -1,0 +1,147 @@
+function preload() {
+
+    game.load.baseURL = 'http://examples.phaser.io/assets/';
+    game.load.crossOrigin = 'anonymous';
+
+    game.load.image('phaser', 'sprites/phaser-dude.png');
+    game.load.image('orb', 'sprites/orb-red.png');
+    
+    var wall = [
+        '11111111',
+        '11111111',
+        '11111111',
+        '11111111',
+        '11111111',
+        '11111111',
+        '11111111',
+        '11111111' ];
+        game.create.texture('wall',wall,6,6,0);
+    
+
+}
+
+var arrows;
+var sprite;
+var walls;
+var triggers;
+var orb;
+var score = 0;
+var scoreText;
+var speed = 100;
+var jump = -400;
+
+function giveSize(item)
+{
+    item.body.setSize(100,200);
+    
+}
+    
+function create() {
+
+    
+    game.stage.backgroundColor = "#FF9966";
+    game.physics.startSystem(Phaser.Physics.Arcade);
+    game.physics.arcade.gravity.y = 1050;
+    sprite = game.add.sprite(0, 0, 'phaser');
+    sprite.x = 400;
+    sprite.y = 300;
+    game.physics.arcade.enable(sprite);
+    sprite.body.collideWorldBounds = true;
+    sprite.isCrossing = false;
+    
+    walls = game.add.group();
+    walls.add(game.add.tileSprite(1050,0,100,300,'wall'));
+    walls.add(game.add.tileSprite(1050,500,100,600,'wall'));
+    walls.add(game.add.tileSprite(1400,0,100,100,'wall'));
+    walls.add(game.add.tileSprite(1400,300,100,600,'wall'));
+    walls.add(game.add.tileSprite(1750,0,100,100,'wall'));
+    walls.add(game.add.tileSprite(1750,200,100,600,'wall'));
+    game.physics.arcade.enable(walls);
+    walls.setAll('body.allowGravity',false);
+    walls.setAll('body.collideWorldBounds',false);
+    
+    triggers = game.add.group();
+    triggers.add(game.add.sprite(1050,300,null));
+    triggers.add(game.add.sprite(1400,100,null));
+    triggers.add(game.add.sprite(1750,200,null));
+    game.physics.arcade.enable(triggers);
+    triggers.setAll('body.allowGravity',false);
+    triggers.setAll('body.collideWorldBounds',false);
+    triggers.forEach(giveSize);
+    
+    arrows = game.input.keyboard.createCursorKeys();
+    
+    orb = game.add.sprite(400,200,'orb');
+    game.physics.arcade.enable(orb);
+    orb.body.allowGravity = false;
+    orb.anchor.setTo(0.5,0.5);
+    
+    scoreText = game.add.text(20,100,"Score: "+score,{fill:"#FFFF10",font:"25px Comic",align:"center"})
+
+}
+var gameover = false;
+
+function update() {
+    if(!gameover)
+    {
+checkKeys ();
+}
+var isCrossing = false;
+if(sprite.isCrossing&&!isCrossing)
+{
+    score = score +1;
+    sprite.isCrossing = false;
+    score = score +1;
+    scoreText.text = "Score :" +score;
+}
+
+function checkKeys ()
+{
+    //sprite.body.velocity.y = 0;
+    if (arrows.up.downDuration (50))
+    {
+        sprite.body.velocity.y = jump;
+        
+    }
+    walls.forEach(moveWalls);
+    triggers.forEach(moveTriggers);
+    game.physics.arcade.collide(sprite,walls,paf);
+    
+}
+//game.physics.arcade.overlap(sprite,triggers,win);
+
+function moveWalls(item){
+    item.body.velocity.x = -400;
+    if(item.x <= -100)
+    {
+        item.x = 1050;
+    }
+}
+function moveTriggers(item){
+    item.body.velocity.x = -400;
+    if(item.x <= -100)
+    {
+        item.x = 1050;
+    }
+}
+}
+function paf(sprite,wall)
+{
+   gameover = true;
+   game.physics.arcade.disable(sprite);
+    
+}
+function reset(sprite,trigger)
+{
+    isCrossing = true;
+    sprite.isCrossing = true;
+    
+
+}
+
+function render() {
+//game.debug.body(orb);
+//game.debug.body(sprite);
+
+}
+
